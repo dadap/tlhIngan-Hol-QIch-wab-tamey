@@ -34,13 +34,20 @@ while read line; do
     while ! [ -f "$dir/txt/${phrase_filename}.txt" ] || \
           ! [ -f "$dir/wav/${phrase_filename}.wav" ]; do
         echo "Prepare to say: \"$phrase_translit\""
-        echo "Press enter when ready."
+        echo "Press enter to begin recording, then press enter again to stop."
 
-        read < /dev/tty
+        # The input is ignored, but specify a storage variable name for shells
+        # that require it.
+        read REPLY < /dev/tty
 
         tmpfile="$dir/wav/${phrase_filename}.stereo.wav"
-        rec "$tmpfile"
-        
+        rec "$tmpfile" &
+
+        read REPLY < /dev/tty
+        while kill $! 2> /dev/null; do
+            sleep 0.1
+        done
+
         echo "Finished recording. (r)eplay, (e)rase, or (w)rite?"
         while read response; do
             r=`echo $response | cut -c1`
