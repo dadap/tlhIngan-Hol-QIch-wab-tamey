@@ -23,9 +23,17 @@ fi
 dir="`dirname $0`/../speakers/$SPEAKER"
 mkdir -p "$dir/txt" "$dir/wav"
 
+lineno=0
+filehash=`$md5_cmd $PHRASE_FILE | cut -f1 -d' '`
+
 while read line; do
     # Base the filename off of the hash of the text; to pseudo-randomize order
-    phrase_filename=`echo $line | $md5_cmd | cut -f1 -d' '`
+    # Also use the hash of the entire file and the line number for computing the
+    # hash, to allow the same text to occur multiple times in the same file or
+    # across files.
+    phrase_filename=`echo $filehash:$lineno:$line | $md5_cmd | cut -f1 -d' '`
+    lineno=$(( $lineno + 1 ))
+
     # Convert xifan hol to Okrandian transliteration for display purposes
     phrase_translit=`echo $line | sed -e s/d/D/g -e s/g/G/g -e s/f/ng/g \
                      -e s/h/H/g -e s/c/ch/g -e s/G/gh/g -e s/i/I/g -e s/k/K/g \
