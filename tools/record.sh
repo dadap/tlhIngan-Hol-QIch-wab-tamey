@@ -27,6 +27,14 @@ lineno=0
 filehash=`$md5_cmd $PHRASE_FILE | cut -f1 -d' '`
 
 while read line; do
+    # Ignore comments (a hash '#' begins a comment) and skip lines that don't
+    # contain any sounds.
+    line=`echo "$line" | sed 's/#.*$//'`
+
+    if ! echo "$line" | grep '[a-z]' > /dev/null; then
+        continue
+    fi
+
     # Base the filename off of the hash of the text; to pseudo-randomize order
     # Also use the hash of the entire file and the line number for computing the
     # hash, to allow the same text to occur multiple times in the same file or
